@@ -12,18 +12,18 @@ type DataEvent struct {
 
 type DataChannel chan DataEvent
 
-type eventBus struct {
+type EventBus struct {
 	subscribers map[string][]DataChannel
 	sync        sync.RWMutex
 }
 
-func New() *eventBus {
-	return &eventBus{
+func New() *EventBus {
+	return &EventBus{
 		subscribers: make(map[string][]DataChannel),
 	}
 }
 
-func (bus *eventBus) Subscribe(topic string, ch DataChannel) {
+func (bus *EventBus) Subscribe(topic string, ch DataChannel) {
 	bus.sync.Lock()
 	defer bus.sync.Unlock()
 
@@ -34,7 +34,7 @@ func (bus *eventBus) Subscribe(topic string, ch DataChannel) {
 	}
 }
 
-func (bus *eventBus) Unsubscribe(topic string, ch DataChannel) {
+func (bus *EventBus) Unsubscribe(topic string, ch DataChannel) {
 	bus.sync.Lock()
 	defer bus.sync.Unlock()
 
@@ -62,7 +62,7 @@ func (bus *eventBus) Unsubscribe(topic string, ch DataChannel) {
 	}
 }
 
-func (bus *eventBus) Publish(topic string, data interface{}) {
+func (bus *EventBus) Publish(topic string, data interface{}) {
 	bus.sync.RLock()
 	if s, exists := bus.subscribers[topic]; exists {
 		subscribers := append([]DataChannel{}, s...)
